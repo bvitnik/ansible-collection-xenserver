@@ -7,6 +7,9 @@ from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
 
+from ansible.module_utils.ansible_release import __version__ as ANSIBLE_VERSION
+
+
 class AnsibleModuleException(Exception):
     def __init__(self, *args, **kwargs):
         self.args = args
@@ -25,6 +28,7 @@ class FakeAnsibleModule:
     def __init__(self, params=None, check_mode=False):
         self.params = params
         self.check_mode = check_mode
+        self.ansible_version = ANSIBLE_VERSION
 
     def exit_json(self, *args, **kwargs):
         raise ExitJsonException(*args, **kwargs)

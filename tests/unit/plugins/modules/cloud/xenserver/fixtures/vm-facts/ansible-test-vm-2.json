@@ -89,6 +89,7 @@
         "videoram": "8",
         "viridian": "false"
     },
+    "resident_on": "ansible-test-host-2",
     "state": "poweredon",
     "uuid": "0a05d5ad-3e4b-f0dc-6101-8c56623958bc",
     "xenstore_data": {

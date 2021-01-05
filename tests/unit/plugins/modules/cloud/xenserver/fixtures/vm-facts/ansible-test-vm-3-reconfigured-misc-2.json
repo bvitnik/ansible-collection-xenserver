@@ -81,6 +81,7 @@
         "pae": "true",
         "viridian": "true"
     },
+    "resident_on": "",
     "state": "poweredoff",
     "uuid": "8f5bc97c-42fa-d619-aba4-d25eced735e0",
     "xenstore_data": {

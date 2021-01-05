@@ -63,7 +63,7 @@ def test_xenserver_guest_powerstate_xenservervm_set_power_state(mocker,
     """Tests XenServerVM.set_power_state()."""
     mocked_set_vm_power_state = mocker.patch('ansible_collections.bvitnik.xenserver.plugins.modules.xenserver_guest_powerstate.set_vm_power_state',
                                              wraps=xenserver_guest_powerstate.set_vm_power_state)
-    mocker.patch('ansible.module_utils.xenserver.time.sleep')
+    mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
     xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
 
@@ -90,7 +90,7 @@ def test_xenserver_guest_powerstate_xenservervm_set_power_state_check_mode(mocke
     """Tests XenServerVM.set_power_state() in check mode."""
     mocked_set_vm_power_state = mocker.patch('ansible_collections.bvitnik.xenserver.plugins.modules.xenserver_guest_powerstate.set_vm_power_state',
                                              wraps=xenserver_guest_powerstate.set_vm_power_state)
-    mocker.patch('ansible.module_utils.xenserver.time.sleep')
+    mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
     xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
@@ -123,7 +123,7 @@ def test_xenserver_guest_powerstate_xenservervm_wait_for_ip_address(mocker,
     """Tests XenServerVM.wait_for_ip_address()."""
     mocked_wait_for_vm_ip_address = mocker.patch('ansible_collections.bvitnik.xenserver.plugins.modules.xenserver_guest_powerstate.wait_for_vm_ip_address',
                                                  wraps=xenserver_guest_powerstate.wait_for_vm_ip_address)
-    mocker.patch('ansible.module_utils.xenserver.time.sleep')
+    mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
     xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
 
@@ -171,7 +171,7 @@ def test_xenserver_guest_powerstate_main_success(mocker,
     Tests successful module invocation with parsing and propagation of
     module parameters and correctness of module output when no change is made.
     """
-    mocker.patch('ansible.module_utils.xenserver.time.sleep')
+    mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
     with pytest.raises(SystemExit):
         xenserver_guest_powerstate.main()

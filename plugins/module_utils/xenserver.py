@@ -20,8 +20,6 @@ except ImportError:
     XENAPI_IMP_ERR = traceback.format_exc()
 
 from ansible.module_utils.basic import env_fallback, missing_required_lib
-from ansible.module_utils.common.network import is_mac
-from ansible.module_utils.ansible_release import __version__ as ANSIBLE_VERSION
 
 
 def xenserver_common_argument_spec():
@@ -340,7 +338,7 @@ def gather_vm_params(module, vm_ref):
     try:
         vm_params = xapi_session.xenapi.VM.get_record(vm_ref)
 
-        # We need some params like affinity, VBDs, VIFs, VDIs etc. dereferenced.
+        # We need some params like affinity, resident_on, VBDs, VIFs, VDIs etc. dereferenced.
 
         # Affinity.
         if vm_params['affinity'] != "OpaqueRef:NULL":
@@ -348,6 +346,13 @@ def gather_vm_params(module, vm_ref):
             vm_params['affinity'] = vm_affinity
         else:
             vm_params['affinity'] = {}
+
+        # Resident On.
+        if vm_params['resident_on'] != "OpaqueRef:NULL":
+            vm_resident_on = xapi_session.xenapi.host.get_record(vm_params['resident_on'])
+            vm_params['resident_on'] = vm_resident_on
+        else:
+            vm_params['resident_on'] = {}
 
         # VBDs.
         vm_vbd_params_list = [xapi_session.xenapi.VBD.get_record(vm_vbd_ref) for vm_vbd_ref in vm_params['VBDs']]
@@ -441,6 +446,7 @@ def gather_vm_facts(module, vm_params):
         "cdrom": {},
         "networks": [],
         "home_server": vm_params['affinity'].get('name_label', ''),
+        "resident_on": vm_params['resident_on'].get('name_label', ''),
         "domid": vm_params['domid'],
         "platform": vm_params['platform'],
         "other_config": vm_params['other_config'],
@@ -814,7 +820,7 @@ class XAPI(object):
                 password = ''
 
         try:
-            cls._xapi_session.login_with_password(username, password, ANSIBLE_VERSION, 'Ansible')
+            cls._xapi_session.login_with_password(username, password, module.ansible_version, 'Ansible')
         except XenAPI.Failure as f:
             module.fail_json(msg="Unable to log on to XenServer at %s as %s: %s" % (hostname, username, f.details))
 

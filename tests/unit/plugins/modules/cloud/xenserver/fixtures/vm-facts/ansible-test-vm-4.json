@@ -30,6 +30,7 @@
         "timeoffset": "0",
         "viridian": "true"
     },
+    "resident_on": "",
     "state": "poweredoff",
     "uuid": "92181f0c-4a6b-ca53-25dc-6fda6a9f6835",
     "xenstore_data": {

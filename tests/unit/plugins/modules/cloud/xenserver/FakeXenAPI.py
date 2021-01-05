@@ -303,7 +303,8 @@ class Session(object):
                     if self._db[xenapi_class][vm_ref]['affinity'] != "OpaqueRef:NULL":
                         host_ref = self._db[xenapi_class][vm_ref]['affinity']
                     else:
-                        host_ref = list(self._db['host'].keys())[0]
+                        pool_ref = list(self._db['pool'].keys())[0]
+                        host_ref = self._db['pool'][pool_ref]['master']
 
                     self._db[xenapi_class][vm_ref]['domid'] = "1"
                     self._db[xenapi_class][vm_ref]['power_state'] = "Running"

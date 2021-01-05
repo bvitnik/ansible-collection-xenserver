@@ -32,6 +32,7 @@
         "videoram": "8",
         "viridian": "false"
     },
+    "resident_on": "",
     "state": "poweredon",
     "uuid": "unknown",
     "xenstore_data": {

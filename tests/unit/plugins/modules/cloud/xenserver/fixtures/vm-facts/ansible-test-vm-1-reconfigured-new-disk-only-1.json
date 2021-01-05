@@ -90,6 +90,7 @@
         "viridian_reference_tsc": "true",
         "viridian_time_ref_count": "true"
     },
+    "resident_on": "ansible-test-host-1",
     "state": "poweredon",
     "uuid": "81c373d7-a407-322f-911b-31386eb5215d",
     "xenstore_data": {
