@@ -86,11 +86,45 @@ Parameters
                                                                 <td>
                                             <div>A CD-ROM configuration for the VM.</div>
                                             <div>All parameters are case sensitive.</div>
-                                            <div>Valid parameters are:</div>
-                                            <div>- <code>type</code> (string): The type of CD-ROM, valid options are <code>none</code> or <code>iso</code>. With <code>none</code> the CD-ROM device will be present but empty.</div>
-                                            <div>- <code>iso_name</code> (string): The file name of an ISO image from one of the XenServer ISO Libraries (implies <code>type: iso</code>). Required if <code>type</code> is set to <code>iso</code>.</div>
                                                         </td>
             </tr>
+                                        <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-cdrom/iso_name"></div>
+                    <b>iso_name</b>
+                    <a class="ansibleOptionLink" href="#parameter-cdrom/iso_name" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>The file name of an ISO image from one of the XenServer ISO Libraries (implies <code>type: iso</code>).</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-cdrom/type"></div>
+                    <b>type</b>
+                    <a class="ansibleOptionLink" href="#parameter-cdrom/type" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>none</li>
+                                                                                                                                                                                                <li>iso</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>The type of CD-ROM. With a value of <code>none</code>, the CD-ROM device will be present but empty.</div>
+                                                        </td>
+            </tr>
+                    
                                 <tr>
                                                                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-custom_params"></div>
@@ -105,9 +139,41 @@ Parameters
                                                                 <td>
                                             <div>Define a list of custom VM params to set on VM.</div>
                                             <div>Useful for advanced users familiar with managing VM params trough xe CLI.</div>
-                                            <div>A custom value object takes two fields <code>key</code> and <code>value</code> (see example below).</div>
                                                         </td>
             </tr>
+                                        <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-custom_params/key"></div>
+                    <b>key</b>
+                    <a class="ansibleOptionLink" href="#parameter-custom_params/key" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                 / <span style="color: red">required</span>                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>VM param to set.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-custom_params/value"></div>
+                    <b>value</b>
+                    <a class="ansibleOptionLink" href="#parameter-custom_params/value" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">raw</span>
+                                                 / <span style="color: red">required</span>                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Value to set VM param to.</div>
+                                                        </td>
+            </tr>
+                    
                                 <tr>
                                                                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-disks"></div>
@@ -122,17 +188,175 @@ Parameters
                                                                 <td>
                                             <div>A list of disks to add to VM.</div>
                                             <div>All parameters are case sensitive.</div>
+                                            <div>VM needs to be shut down to reconfigure disk size.</div>
                                             <div>Removing or detaching existing disks of VM is not supported.</div>
-                                            <div>Required parameters per entry:</div>
-                                            <div>- <code>size_[tb,gb,mb,kb,b]</code> (integer): Disk storage size in specified unit. VM needs to be shut down to reconfigure this parameter.</div>
-                                            <div>Optional parameters per entry:</div>
-                                            <div>- <code>name</code> (string): Disk name. You can also use <code>name_label</code> as an alias.</div>
-                                            <div>- <code>name_desc</code> (string): Disk description.</div>
-                                            <div>- <code>sr</code> (string): Storage Repository to create disk on. If not specified, will use default SR. Cannot be used for moving disk to other SR.</div>
-                                            <div>- <code>sr_uuid</code> (string): UUID of a SR to create disk on. Use if SR name is not unique.</div>
+                                            <div>Disk size specification is required for new disks. Other parameters are optional in all cases.</div>
                                                                 <div style="font-size: small; color: darkgreen"><br/>aliases: disk</div>
                                     </td>
             </tr>
+                                        <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/name"></div>
+                    <b>name</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/name" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk name.</div>
+                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: name_label</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/name_desc"></div>
+                    <b>name_desc</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/name_desc" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk description.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size"></div>
+                    <b>size</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in specified unit. Add a value suffix like tb, gb, mb, kb or b to specify unit.</div>
+                                            <div>If no unit is specified, size is assumed to be in bytes.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size_b"></div>
+                    <b>size_b</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size_b" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in B.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size_gb"></div>
+                    <b>size_gb</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size_gb" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in GB.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size_kb"></div>
+                    <b>size_kb</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size_kb" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in KB.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size_mb"></div>
+                    <b>size_mb</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size_mb" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in MB.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/size_tb"></div>
+                    <b>size_tb</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/size_tb" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Disk storage size in TB.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/sr"></div>
+                    <b>sr</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/sr" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Storage Repository to create disk on. If not specified, will use default SR. Cannot be used for moving disk to other SR.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-disks/sr_uuid"></div>
+                    <b>sr_uuid</b>
+                    <a class="ansibleOptionLink" href="#parameter-disks/sr_uuid" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>UUID of a SR to create disk on. Use if SR name is not unique.</div>
+                                                        </td>
+            </tr>
+                    
                                 <tr>
                                                                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-folder"></div>
@@ -315,7 +539,7 @@ Parameters
                     <a class="ansibleOptionLink" href="#parameter-name" title="Permalink to this option"></a>
                     <div style="font-size: small">
                         <span style="color: purple">string</span>
-                                                 / <span style="color: red">required</span>                    </div>
+                                                                    </div>
                                                         </td>
                                 <td>
                                                                                                                                                             </td>
@@ -356,21 +580,168 @@ Parameters
                                                                 <td>
                                             <div>A list of networks (in the order of the NICs).</div>
                                             <div>All parameters are case sensitive.</div>
-                                            <div>Required parameters per entry:</div>
-                                            <div>- <code>name</code> (string): Name of a XenServer network to attach the network interface to. You can also use <code>name_label</code> as an alias.</div>
-                                            <div>Optional parameters per entry (used for VM hardware):</div>
-                                            <div>- <code>mac</code> (string): Customize MAC address of the interface.</div>
-                                            <div>Optional parameters per entry (used for OS customization):</div>
-                                            <div>- <code>type</code> (string): Type of IPv4 assignment, valid options are <code>none</code>, <code>dhcp</code> or <code>static</code>. Value <code>none</code> means whatever is default for OS. On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).</div>
-                                            <div>- <code>ip</code> (string): Static IPv4 address (implies <code>type: static</code>). Can include prefix in format &lt;IPv4 address&gt;/&lt;prefix&gt; instead of using <code>netmask</code>.</div>
-                                            <div>- <code>netmask</code> (string): Static IPv4 netmask required for <code>ip</code> if prefix is not specified.</div>
-                                            <div>- <code>gateway</code> (string): Static IPv4 gateway.</div>
-                                            <div>- <code>type6</code> (string): Type of IPv6 assignment, valid options are <code>none</code>, <code>dhcp</code> or <code>static</code>. Value <code>none</code> means whatever is default for OS. On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).</div>
-                                            <div>- <code>ip6</code> (string): Static IPv6 address (implies <code>type6: static</code>) with prefix in format &lt;IPv6 address&gt;/&lt;prefix&gt;.</div>
-                                            <div>- <code>gateway6</code> (string): Static IPv6 gateway.</div>
-                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: network</div>
+                                            <div>Name is required for new NICs. Other parameters are optional in all cases.</div>
+                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: network, nic, nics, interface, interfaces</div>
                                     </td>
             </tr>
+                                        <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/gateway"></div>
+                    <b>gateway</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/gateway" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Static IPv4 gateway.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/gateway6"></div>
+                    <b>gateway6</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/gateway6" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Static IPv6 gateway.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/ip"></div>
+                    <b>ip</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/ip" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Static IPv4 address (implies <code>type: static</code>). Can include prefix in format &lt;IPv4 address&gt;/&lt;prefix&gt; instead of using <code>netmask</code>.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/ip6"></div>
+                    <b>ip6</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/ip6" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Static IPv6 address (implies <code>type6: static</code>) with prefix in format &lt;IPv6 address&gt;/&lt;prefix&gt;.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/mac"></div>
+                    <b>mac</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/mac" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Customize MAC address of the interface.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/name"></div>
+                    <b>name</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/name" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Name of a XenServer network to attach the network interface to.</div>
+                                                                <div style="font-size: small; color: darkgreen"><br/>aliases: name_label</div>
+                                    </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/netmask"></div>
+                    <b>netmask</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/netmask" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                                                            </td>
+                                                                <td>
+                                            <div>Static IPv4 netmask required for <code>ip</code> if prefix is not specified.</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/type"></div>
+                    <b>type</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/type" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>none</li>
+                                                                                                                                                                                                <li>dhcp</li>
+                                                                                                                                                                                                <li>static</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Type of IPv4 assignment. Value <code>none</code> means whatever is default for OS.</div>
+                                            <div>On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).</div>
+                                                        </td>
+            </tr>
+                                <tr>
+                                                    <td class="elbow-placeholder"></td>
+                                                <td colspan="1">
+                    <div class="ansibleOptionAnchor" id="parameter-networks/type6"></div>
+                    <b>type6</b>
+                    <a class="ansibleOptionLink" href="#parameter-networks/type6" title="Permalink to this option"></a>
+                    <div style="font-size: small">
+                        <span style="color: purple">string</span>
+                                                                    </div>
+                                                        </td>
+                                <td>
+                                                                                                                            <ul style="margin: 0; padding: 0"><b>Choices:</b>
+                                                                                                                                                                <li>none</li>
+                                                                                                                                                                                                <li>dhcp</li>
+                                                                                                                                                                                                <li>static</li>
+                                                                                    </ul>
+                                                                            </td>
+                                                                <td>
+                                            <div>Type of IPv6 assignment. Value <code>none</code> means whatever is default for OS.</div>
+                                            <div>On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).</div>
+                                                        </td>
+            </tr>
+                    
                                 <tr>
                                                                 <td colspan="2">
                     <div class="ansibleOptionAnchor" id="parameter-password"></div>
@@ -551,12 +922,17 @@ Notes
 
 .. note::
    - Minimal supported version of XenServer is 5.6.
-   - Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6 and 8.0.
+   - Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6, 8.0 and 8.1.
    - To acquire XenAPI Python library, just run ``pip install XenAPI`` on your Ansible Control Node. The library can also be found inside Citrix Hypervisor/XenServer SDK (downloadable from Citrix website). Copy the XenAPI.py file from the SDK to your Python site-packages on your Ansible Control Node to use it. Latest version of the library can also be acquired from GitHub: https://raw.githubusercontent.com/xapi-project/xen-api/master/scripts/examples/python/XenAPI/XenAPI.py
+
    - If no scheme is specified in ``hostname``, module defaults to ``http://`` because ``https://`` is problematic in most setups. Make sure you are accessing XenServer host in trusted environment or use ``https://`` scheme explicitly.
+
    - To use ``https://`` scheme for ``hostname`` you have to either import host certificate to your OS certificate store or use ``validate_certs: no`` which requires XenAPI library from XenServer 7.2 SDK or newer and Python 2.7.9 or newer.
+
    - Network configuration inside a guest OS, by using ``networks.type``, ``networks.ip``, ``networks.gateway`` etc. parameters, is supported on XenServer 7.0 or newer for Windows guests by using official XenServer Guest agent support for network configuration. The module will try to detect if such support is available and utilize it, else it will use a custom method of configuration via xenstore. Since XenServer Guest agent only support None and Static types of network configuration, where None means DHCP configured interface, ``networks.type`` and ``networks.type6`` values ``none`` and ``dhcp`` have same effect. More info here: https://www.citrix.com/community/citrix-developer/citrix-hypervisor-developer/citrix-hypervisor-developing-products/citrix-hypervisor-staticip.html
+
    - On platforms without official support for network configuration inside a guest OS, network parameters will be written to xenstore ``vm-data/networks/<vif_device>`` key. Parameters can be inspected by using ``xenstore ls`` and ``xenstore read`` tools on \*nix guests or trough WMI interface on Windows guests. They can also be found in VM facts ``instance.xenstore_data`` key as returned by the module. It is up to the user to implement a boot time scripts or custom agent that will read the parameters from xenstore and configure network with given parameters. Take note that for xenstore data to become available inside a guest, a VM restart is needed hence module will require VM restart if any parameter is changed. This is a limitation of XenAPI and xenstore. Considering these limitations, network configuration trough xenstore is most useful for bootstraping newly deployed VMs, much less for reconfiguring existing ones. More info here: https://support.citrix.com/article/CTX226713
+
 
 .. Seealso
 

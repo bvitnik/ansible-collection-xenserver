@@ -12,37 +12,42 @@ DOCUMENTATION = r'''
 module: xenserver_guest
 short_description: Manages virtual machines running on Citrix Hypervisor/XenServer host or pool
 description: >
-   This module can be used to create new virtual machines from templates or other virtual machines,
-   modify various virtual machine components like network and disk, rename a virtual machine and
-   remove a virtual machine with associated components.
+  This module can be used to create new virtual machines from templates or other virtual machines,
+  modify various virtual machine components like network and disk, rename a virtual machine and
+  remove a virtual machine with associated components.
 version_added: '1.0.0'
 author:
 - Bojan Vitnik (@bvitnik) <bvitnik@mainstream.rs>
 notes:
 - Minimal supported version of XenServer is 5.6.
-- Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6 and 8.0.
-- 'To acquire XenAPI Python library, just run C(pip install XenAPI) on your Ansible Control Node. The library can also be found inside
-   Citrix Hypervisor/XenServer SDK (downloadable from Citrix website). Copy the XenAPI.py file from the SDK to your Python site-packages on your
-   Ansible Control Node to use it. Latest version of the library can also be acquired from GitHub:
-   U(https://raw.githubusercontent.com/xapi-project/xen-api/master/scripts/examples/python/XenAPI/XenAPI.py)'
-- 'If no scheme is specified in C(hostname), module defaults to C(http://) because C(https://) is problematic in most setups. Make sure you are
-   accessing XenServer host in trusted environment or use C(https://) scheme explicitly.'
-- 'To use C(https://) scheme for C(hostname) you have to either import host certificate to your OS certificate store or use C(validate_certs: no)
-   which requires XenAPI library from XenServer 7.2 SDK or newer and Python 2.7.9 or newer.'
-- 'Network configuration inside a guest OS, by using C(networks.type), C(networks.ip), C(networks.gateway) etc. parameters, is supported on
+- Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6, 8.0 and 8.1.
+- >
+  To acquire XenAPI Python library, just run C(pip install XenAPI) on your Ansible Control Node. The library can also be found inside
+  Citrix Hypervisor/XenServer SDK (downloadable from Citrix website). Copy the XenAPI.py file from the SDK to your Python site-packages on your
+  Ansible Control Node to use it. Latest version of the library can also be acquired from GitHub:
+  U(https://raw.githubusercontent.com/xapi-project/xen-api/master/scripts/examples/python/XenAPI/XenAPI.py)
+- >
+  If no scheme is specified in C(hostname), module defaults to C(http://) because C(https://) is problematic in most setups. Make sure you are
+  accessing XenServer host in trusted environment or use C(https://) scheme explicitly.
+- >
+  To use C(https://) scheme for C(hostname) you have to either import host certificate to your OS certificate store or use C(validate_certs: no)
+  which requires XenAPI library from XenServer 7.2 SDK or newer and Python 2.7.9 or newer.
+- >
+  Network configuration inside a guest OS, by using C(networks.type), C(networks.ip), C(networks.gateway) etc. parameters, is supported on
   XenServer 7.0 or newer for Windows guests by using official XenServer Guest agent support for network configuration. The module will try to
   detect if such support is available and utilize it, else it will use a custom method of configuration via xenstore. Since XenServer Guest
   agent only support None and Static types of network configuration, where None means DHCP configured interface, C(networks.type) and C(networks.type6)
   values C(none) and C(dhcp) have same effect. More info here:
-  U(https://www.citrix.com/community/citrix-developer/citrix-hypervisor-developer/citrix-hypervisor-developing-products/citrix-hypervisor-staticip.html)'
-- 'On platforms without official support for network configuration inside a guest OS, network parameters will be written to xenstore
+  U(https://www.citrix.com/community/citrix-developer/citrix-hypervisor-developer/citrix-hypervisor-developing-products/citrix-hypervisor-staticip.html)
+- >
+  On platforms without official support for network configuration inside a guest OS, network parameters will be written to xenstore
   C(vm-data/networks/<vif_device>) key. Parameters can be inspected by using C(xenstore ls) and C(xenstore read) tools on \*nix guests or trough
   WMI interface on Windows guests. They can also be found in VM facts C(instance.xenstore_data) key as returned by the module. It is up to the user
   to implement a boot time scripts or custom agent that will read the parameters from xenstore and configure network with given parameters.
   Take note that for xenstore data to become available inside a guest, a VM restart is needed hence module will require VM restart if any
   parameter is changed. This is a limitation of XenAPI and xenstore. Considering these limitations, network configuration trough xenstore is most
   useful for bootstraping newly deployed VMs, much less for reconfiguring existing ones. More info here:
-  U(https://support.citrix.com/article/CTX226713)'
+  U(https://support.citrix.com/article/CTX226713)
 requirements:
 - python >= 2.6
 - XenAPI
@@ -64,7 +69,6 @@ options:
     - In case of multiple VMs with same name, use C(uuid) to uniquely specify VM to manage.
     - This parameter is case sensitive.
     type: str
-    required: yes
     aliases: [ name_label ]
   name_desc:
     description:
@@ -123,47 +127,120 @@ options:
     description:
     - A list of disks to add to VM.
     - All parameters are case sensitive.
+    - VM needs to be shut down to reconfigure disk size.
     - Removing or detaching existing disks of VM is not supported.
-    - 'Required parameters per entry:'
-    - ' - C(size_[tb,gb,mb,kb,b]) (integer): Disk storage size in specified unit. VM needs to be shut down to reconfigure this parameter.'
-    - 'Optional parameters per entry:'
-    - ' - C(name) (string): Disk name. You can also use C(name_label) as an alias.'
-    - ' - C(name_desc) (string): Disk description.'
-    - ' - C(sr) (string): Storage Repository to create disk on. If not specified, will use default SR. Cannot be used for moving disk to other SR.'
-    - ' - C(sr_uuid) (string): UUID of a SR to create disk on. Use if SR name is not unique.'
+    - Disk size specification is required for new disks. Other parameters are optional in all cases.
     type: list
     elements: dict
     aliases: [ disk ]
+    suboptions:
+      size:
+        description:
+        - Disk storage size in specified unit. Add a value suffix like tb, gb, mb, kb or b to specify unit.
+        - If no unit is specified, size is assumed to be in bytes.
+        type: str
+      size_tb:
+        description:
+        - Disk storage size in TB.
+        type: str
+      size_gb:
+        description:
+        - Disk storage size in GB.
+        type: str
+      size_mb:
+        description:
+        - Disk storage size in MB.
+        type: str
+      size_kb:
+        description:
+        - Disk storage size in KB.
+        type: str
+      size_b:
+        description:
+        - Disk storage size in B.
+        type: str
+      name:
+        description:
+        - Disk name.
+        type: str
+        aliases: [ name_label ]
+      name_desc:
+        description:
+        - Disk description.
+        type: str
+      sr:
+        description:
+        - Storage Repository to create disk on. If not specified, will use default SR. Cannot be used for moving disk to other SR.
+        type: str
+      sr_uuid:
+        description:
+        - UUID of a SR to create disk on. Use if SR name is not unique.
+        type: str
   cdrom:
     description:
     - A CD-ROM configuration for the VM.
     - All parameters are case sensitive.
-    - 'Valid parameters are:'
-    - ' - C(type) (string): The type of CD-ROM, valid options are C(none) or C(iso). With C(none) the CD-ROM device will be present but empty.'
-    - ' - C(iso_name) (string): The file name of an ISO image from one of the XenServer ISO Libraries (implies C(type: iso)).
-          Required if C(type) is set to C(iso).'
     type: dict
+    suboptions:
+      type:
+        description:
+        - The type of CD-ROM. With a value of C(none), the CD-ROM device will be present but empty.
+        type: str
+        choices: [ none, iso ]
+      iso_name:
+        description:
+        - 'The file name of an ISO image from one of the XenServer ISO Libraries (implies C(type: iso)).'
+        type: str
   networks:
     description:
     - A list of networks (in the order of the NICs).
     - All parameters are case sensitive.
-    - 'Required parameters per entry:'
-    - ' - C(name) (string): Name of a XenServer network to attach the network interface to. You can also use C(name_label) as an alias.'
-    - 'Optional parameters per entry (used for VM hardware):'
-    - ' - C(mac) (string): Customize MAC address of the interface.'
-    - 'Optional parameters per entry (used for OS customization):'
-    - ' - C(type) (string): Type of IPv4 assignment, valid options are C(none), C(dhcp) or C(static). Value C(none) means whatever is default for OS.
-          On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).'
-    - ' - C(ip) (string): Static IPv4 address (implies C(type: static)). Can include prefix in format <IPv4 address>/<prefix> instead of using C(netmask).'
-    - ' - C(netmask) (string): Static IPv4 netmask required for C(ip) if prefix is not specified.'
-    - ' - C(gateway) (string): Static IPv4 gateway.'
-    - ' - C(type6) (string): Type of IPv6 assignment, valid options are C(none), C(dhcp) or C(static). Value C(none) means whatever is default for OS.
-          On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).'
-    - ' - C(ip6) (string): Static IPv6 address (implies C(type6: static)) with prefix in format <IPv6 address>/<prefix>.'
-    - ' - C(gateway6) (string): Static IPv6 gateway.'
+    - Name is required for new NICs. Other parameters are optional in all cases.
     type: list
     elements: dict
-    aliases: [ network ]
+    aliases: [ network, nic, nics, interface, interfaces ]
+    suboptions:
+      name:
+        description:
+        - Name of a XenServer network to attach the network interface to.
+        type: str
+        aliases: [ name_label ]
+      mac:
+        description:
+        - Customize MAC address of the interface.
+        type: str
+      type:
+        description:
+        - Type of IPv4 assignment. Value C(none) means whatever is default for OS.
+        - On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).
+        type: str
+        choices: [ none, dhcp, static ]
+      ip:
+        description:
+        - 'Static IPv4 address (implies C(type: static)). Can include prefix in format <IPv4 address>/<prefix> instead of using C(netmask).'
+        type: str
+      netmask:
+        description:
+        - Static IPv4 netmask required for C(ip) if prefix is not specified.
+        type: str
+      gateway:
+        description:
+        - Static IPv4 gateway.
+        type: str
+      type6:
+        description:
+        - Type of IPv6 assignment. Value C(none) means whatever is default for OS.
+        - On some operating systems it could be DHCP configured (e.g. Windows) or unconfigured interface (e.g. Linux).
+        type: str
+        choices: [ none, dhcp, static ]
+      ip6:
+        description:
+        - 'Static IPv6 address (implies C(type6: static)) with prefix in format <IPv6 address>/<prefix>.'
+        type: str
+      gateway6:
+        description:
+        - Static IPv6 gateway.
+        type: str
   home_server:
     description:
     - Name of a XenServer host that will be a Home Server for the VM.
@@ -173,9 +250,19 @@ options:
     description:
     - Define a list of custom VM params to set on VM.
     - Useful for advanced users familiar with managing VM params trough xe CLI.
-    - A custom value object takes two fields C(key) and C(value) (see example below).
     type: list
     elements: dict
+    suboptions:
+      key:
+        description:
+        - VM param to set.
+        type: str
+        required: yes
+      value:
+        description:
+        - Value to set VM param to.
+        type: raw
+        required: yes
   wait_for_ip_address:
     description:
     - Wait until XenServer detects an IP address for the VM. If C(state) is set to C(absent), this parameter is ignored.
@@ -1808,6 +1895,9 @@ def main():
             elements='dict',
             options=dict(
                 size=dict(type='str'),
+                # We define size_[tb, gb, mb, kb, b] parameters as strings
+                # because size can be specified as int or float and we manually
+                # parse it.
                 size_tb=dict(type='str'),
                 size_gb=dict(type='str'),
                 size_mb=dict(type='str'),
@@ -1848,7 +1938,7 @@ def main():
                 ip6=dict(type='str'),
                 gateway6=dict(type='str'),
             ),
-            aliases=['network'],
+            aliases=['network', 'nic', 'nics', 'interface', 'interfaces'],
             required_if=[
                 ['type', 'static', ['ip']],
                 ['type6', 'static', ['ip6']],

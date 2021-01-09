@@ -254,10 +254,13 @@ Notes
 
 .. note::
    - Minimal supported version of XenServer is 5.6.
-   - Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6 and 8.0.
+   - Module was tested with XenServer 6.5, 7.1, 7.2, 7.6, Citrix Hypervisor 8.0, XCP-ng 7.6, 8.0 and 8.1.
    - To acquire XenAPI Python library, just run ``pip install XenAPI`` on your Ansible Control Node. The library can also be found inside Citrix Hypervisor/XenServer SDK (downloadable from Citrix website). Copy the XenAPI.py file from the SDK to your Python site-packages on your Ansible Control Node to use it. Latest version of the library can also be acquired from GitHub: https://raw.githubusercontent.com/xapi-project/xen-api/master/scripts/examples/python/XenAPI/XenAPI.py
+
    - If no scheme is specified in ``hostname``, module defaults to ``http://`` because ``https://`` is problematic in most setups. Make sure you are accessing XenServer host in trusted environment or use ``https://`` scheme explicitly.
+
    - To use ``https://`` scheme for ``hostname`` you have to either import host certificate to your OS certificate store or use ``validate_certs: no`` which requires XenAPI library from XenServer 7.2 SDK or newer and Python 2.7.9 or newer.
+
 
 .. Seealso
 
