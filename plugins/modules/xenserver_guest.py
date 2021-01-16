@@ -366,7 +366,7 @@ EXAMPLES = r'''
     name: testvm_8
     state: present
     custom_params:
-    - key: HVM_boot_params
+    - key: "HVM-boot-params"
       value: { "order": "ndc" }
   delegate_to: localhost
 
@@ -1122,7 +1122,7 @@ class XenServerVM(XenServerObject):
                         for position in change['custom_params']:
                             custom_param_key = self.module.params['custom_params'][position]['key']
                             custom_param_value = self.module.params['custom_params'][position]['value']
-                            self.xapi_session.xenapi_request("VM.set_%s" % custom_param_key, (self.vm_ref, custom_param_value))
+                            self.xapi_session.xenapi_request("VM.set_%s" % custom_param_key.replace('-', '_'), (self.vm_ref, custom_param_value))
 
             if self.module.params['is_template']:
                 self.xapi_session.xenapi.VM.set_is_a_template(self.vm_ref, True)
@@ -1770,10 +1770,10 @@ class XenServerVM(XenServerObject):
                     custom_param_key = custom_param['key']
                     custom_param_value = custom_param['value']
 
-                    if custom_param_key not in self.vm_params:
+                    if custom_param_key.replace('-', '_') not in self.vm_params:
                         self.module.fail_json(msg="VM check custom_params[%s]: unknown VM param '%s'!" % (position, custom_param_key))
 
-                    if custom_param_value != self.vm_params[custom_param_key]:
+                    if custom_param_value != self.vm_params[custom_param_key.replace('-', '_')]:
                         # We only need to track custom param position.
                         config_changes_custom_params.append(position)
 

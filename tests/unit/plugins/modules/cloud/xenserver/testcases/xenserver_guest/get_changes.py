@@ -636,7 +636,7 @@ testcase_get_changes_no_change = {
             ],
             "custom_params": [
                 {
-                    "key": "HVM_boot_params",
+                    "key": "HVM-boot-params",
                     "value": {
                         "order": "dc",
                     },
@@ -1110,7 +1110,7 @@ testcase_get_changes_need_poweredoff = {
                 ],
                 "custom_params": [
                     {
-                        "key": "HVM_boot_params",
+                        "key": "HVM-boot-params",
                         "value": {
                             "order": "ncd",
                         },
@@ -1161,7 +1161,7 @@ testcase_get_changes_need_poweredoff = {
                 ],
                 "custom_params": [
                     {
-                        "key": "HVM_boot_params",
+                        "key": "HVM-boot-params",
                         "value": {
                             "order": "ncd",
                         },
@@ -1274,7 +1274,7 @@ testcase_get_changes = {
                 ],
                 "custom_params": [
                     {
-                        "key": "HVM_boot_params",
+                        "key": "HVM-boot-params",
                         "value": {
                             "order": "ncd",
                         },
