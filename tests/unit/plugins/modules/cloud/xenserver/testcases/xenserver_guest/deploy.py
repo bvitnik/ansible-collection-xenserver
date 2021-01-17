@@ -103,19 +103,6 @@ testcase_deploy_failures = {
             },
             "VM deploy disks[0]: no default SR found! You must specify SR explicitly.",
         ),
-        (
-            {
-                "name": "",
-                "uuid": "some-uuid",
-                "template": "ansible-test-vm-3",
-                "disks": [
-                    {
-                        "sr": "Ansible Test Storage 1",
-                    },
-                ],
-            },
-            "VM deploy: VM name must not be an empty string!",
-        ),
     ],
     "ids": [
         "vm-found-name",
@@ -131,7 +118,6 @@ testcase_deploy_failures = {
         "disks-not-specified",
         "disks-empty",
         "disks-no-sr-specified",
-        "vm-name-is-empty-string",
     ],
 }
 

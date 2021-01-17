@@ -17,28 +17,13 @@ testcase_destroy_failures = {
         ),
         (
             {
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called destroy on non existing VM!",
-        ),
-        (
-            {
-                "name": "ansible-test-vm-1",
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called destroy on non existing VM!",
-        ),
-        (
-            {
                 "name": "ansible-test-vm-1",
             },
             "VM destroy: VM has to be in powered off state to destroy but force was not specified!",
         ),
     ],
     "ids": [
-        "vm-not-found-name",
-        "vm-not-found-uuid",
-        "vm-not-found-name+uuid",
+        "vm-not-found",
         "vm-not-poweredoff",
     ],
 }

@@ -114,10 +114,25 @@ testcase_vm_not_found = {
             "name": "ansible-test-vm-1",
             "uuid": "nonexistent-vm-uuid",
         },
+        {
+            "name": "",
+        },
+        {
+            "uuid": "",
+        },
+        {
+            "name": "",
+            "uuid": "",
+        },
+        {},
     ],
     "ids": [
         "nonexistent-vm-name",
         "nonexistent-vm-uuid",
         "nonexistent-vm-name+uuid",
+        "empty-vm-name",
+        "empty-vm-uuid",
+        "empty-vm-name+uuid",
+        "no-vm-name-or-uuid"
     ],
 }

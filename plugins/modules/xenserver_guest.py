@@ -572,7 +572,11 @@ class XenServerVM(XenServerObject):
         """
         super(XenServerVM, self).__init__(module)
 
-        self.vm_ref = get_object_ref(self.module, self.module.params['name'], self.module.params['uuid'], obj_type="VM", fail=False, msg_prefix="VM search: ")
+        if self.module.params.get('uuid'):
+            self.vm_ref = get_object_ref(self.module, None, self.module.params.get('uuid'), obj_type="VM", fail=True, msg_prefix="VM search: ")
+        else:
+            self.vm_ref = get_object_ref(self.module, self.module.params.get('name'), None, obj_type="VM", fail=False, msg_prefix="VM search: ")
+
         self.gather_params()
 
     def exists(self):
@@ -636,10 +640,6 @@ class XenServerVM(XenServerObject):
                     sr_ref = self.default_sr_ref
                 else:
                     self.module.fail_json(msg="VM deploy disks[0]: no default SR found! You must specify SR explicitly.")
-
-            # VM name could be an empty string which is bad.
-            if self.module.params['name'] is not None and not self.module.params['name']:
-                self.module.fail_json(msg="VM deploy: VM name must not be an empty string!")
 
             # Support for Ansible check mode.
             if self.module.check_mode:

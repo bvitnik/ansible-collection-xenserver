@@ -17,19 +17,6 @@ testcase_get_changes_failures = {
         ),
         (
             {
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called get_changes on non existing VM!",
-        ),
-        (
-            {
-                "name": "ansible-test-vm-1",
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called get_changes on non existing VM!",
-        ),
-        (
-            {
                 "name": "CentOS 7",
             },
             "VM check: targeted VM is a template! Template reconfiguration is not supported.",
@@ -371,9 +358,7 @@ testcase_get_changes_failures = {
         ),
     ],
     "ids": [
-        "vm-not-found-name",
-        "vm-not-found-uuid",
-        "vm-not-found-name+uuid",
+        "vm-not-found",
         "vm-is-template",
         "vm-is-snapshot",
         "vm-name-is-empty-string",

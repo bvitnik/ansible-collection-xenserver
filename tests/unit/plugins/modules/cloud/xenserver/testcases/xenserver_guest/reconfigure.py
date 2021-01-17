@@ -20,19 +20,6 @@ testcase_reconfigure_failures = {
         ),
         (
             {
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called reconfigure on non existing VM!",
-        ),
-        (
-            {
-                "name": "ansible-test-vm-1",
-                "uuid": "nonexistent-vm-uuid",
-            },
-            "Called reconfigure on non existing VM!",
-        ),
-        (
-            {
                 "name": "ansible-test-vm-1",
                 "is_template": True,
             },
@@ -40,9 +27,7 @@ testcase_reconfigure_failures = {
         ),
     ],
     "ids": [
-        "vm-not-found-name",
-        "vm-not-found-uuid",
-        "vm-not-found-name+uuid",
+        "vm-not-found",
         "need_poweredoff-no-force",
     ],
 }

@@ -51,10 +51,23 @@ def test_xenserver_guest_xenservervm_misc_vm_not_found(fake_ansible_module, xens
     """
     xenserver_guest_expand_params(fake_ansible_module.params)
 
-    vm = xenserver_guest.XenServerVM(fake_ansible_module)
+    if fake_ansible_module.params.get('uuid'):
+        with pytest.raises(FailJsonException) as exc_info:
+            vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
-    assert vm.vm_ref is None
-    assert not vm.vm_params
+        assert "not found" in exc_info.value.kwargs['msg']
+
+    elif fake_ansible_module.params.get('name'):
+        vm = xenserver_guest.XenServerVM(fake_ansible_module)
+
+        assert vm.vm_ref is None
+        assert not vm.vm_params
+
+    else:
+        with pytest.raises(FailJsonException) as exc_info:
+            vm = xenserver_guest.XenServerVM(fake_ansible_module)
+
+        assert "no valid" in exc_info.value.kwargs['msg']
 
 
 @pytest.mark.parametrize('fake_ansible_module,fake_vm_facts',
@@ -561,7 +574,7 @@ def test_xenserver_guest_xenservervm_get_normalized_disk_size_failures(fake_ansi
     # or moved to xenserver module util so that this piece of code can be
     # removed.
     fake_ansible_module.params.update({
-        "uuid": "some-vm-uuid",
+        "name": "some-vm-name",
     })
 
     xenserver_guest_expand_params(fake_ansible_module.params)
@@ -585,7 +598,7 @@ def test_xenserver_guest_xenservervm_get_normalized_disk_size(fake_ansible_modul
     # or moved to xenserver module util so that this piece of code can be
     # removed.
     fake_ansible_module.params.update({
-        "uuid": "some-vm-uuid",
+        "name": "some-vm-name",
     })
 
     xenserver_guest_expand_params(fake_ansible_module.params)

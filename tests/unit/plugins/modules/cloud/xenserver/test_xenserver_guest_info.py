@@ -27,10 +27,17 @@ def test_xenserver_guest_info_xenservervm_misc_failures(fake_ansible_module, xen
     """Tests failures of XenServerVM.__init__()."""
     xenserver_guest_info_expand_params(fake_ansible_module.params)
 
-    with pytest.raises(FailJsonException) as exc_info:
-        xenserver_guest_info.XenServerVM(fake_ansible_module)
+    if fake_ansible_module.params.get('uuid') or fake_ansible_module.params.get('name'):
+        with pytest.raises(FailJsonException) as exc_info:
+            vm = xenserver_guest_info.XenServerVM(fake_ansible_module)
 
-    assert "not found" in exc_info.value.kwargs['msg']
+        assert "not found" in exc_info.value.kwargs['msg']
+
+    else:
+        with pytest.raises(FailJsonException) as exc_info:
+            vm = xenserver_guest_info.XenServerVM(fake_ansible_module)
+
+        assert "no valid" in exc_info.value.kwargs['msg']
 
 
 @pytest.mark.parametrize('fake_ansible_module,fake_vm_facts',
@@ -62,7 +69,8 @@ def test_xenserver_guest_info_main_failures(capfd, patch_ansible_module, xenserv
     result = json.loads(out)
 
     assert result['failed'] is True
-    assert "not found" in result['msg']
+    print(result['msg'])
+    assert "not found" in result['msg'] or "no valid" in result['msg'] or "one of the following is required" in result['msg']
     assert "changed" not in result
     assert "instance" not in result
 
