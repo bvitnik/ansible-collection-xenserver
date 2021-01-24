@@ -11,7 +11,6 @@ import json
 import pytest
 
 from .FakeAnsibleModule import FailJsonException
-from .common import xenserver_guest_info_expand_params
 from .testcases.xenserver_guest_common import (testcase_vm_not_found,
                                                testcase_vm_found)
 
@@ -25,8 +24,6 @@ pytestmark = pytest.mark.usefixtures("fake_xenapi_db_vm")
                          indirect=True)
 def test_xenserver_guest_info_xenservervm_misc_failures(fake_ansible_module, xenserver_guest_info):
     """Tests failures of XenServerVM.__init__()."""
-    xenserver_guest_info_expand_params(fake_ansible_module.params)
-
     if fake_ansible_module.params.get('uuid') or fake_ansible_module.params.get('name'):
         with pytest.raises(FailJsonException) as exc_info:
             vm = xenserver_guest_info.XenServerVM(fake_ansible_module)
@@ -46,8 +43,6 @@ def test_xenserver_guest_info_xenservervm_misc_failures(fake_ansible_module, xen
                          indirect=True)
 def test_xenserver_guest_info_xenservervm_misc_success(fake_ansible_module, fake_vm_facts, xenserver_guest_info):
     """Tests successful run of XenServerVM.__init__() and misc methods."""
-    xenserver_guest_info_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest_info.XenServerVM(fake_ansible_module)
 
     assert vm.gather_facts() == fake_vm_facts

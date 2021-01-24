@@ -11,7 +11,6 @@ import json
 import pytest
 
 from .FakeAnsibleModule import FailJsonException
-from .common import xenserver_guest_expand_params
 from .testcases.xenserver_guest_common import (testcase_vm_not_found,
                                                testcase_vm_found)
 from .testcases.xenserver_guest_powerstate_common import (testcase_powerstate_change,
@@ -49,8 +48,6 @@ def test_xenserver_guest_xenservervm_misc_vm_not_found(fake_ansible_module, xens
     Tests successful run of XenServerVM.__init__() and misc methods
     when VM is not found.
     """
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     if fake_ansible_module.params.get('uuid'):
         with pytest.raises(FailJsonException) as exc_info:
             vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -79,8 +76,6 @@ def test_xenserver_guest_xenservervm_misc_vm_found(fake_ansible_module, fake_vm_
     Tests successful run of XenServerVM.__init__() and misc methods
     when VM is found.
     """
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     assert vm.gather_facts() == fake_vm_facts
@@ -100,10 +95,8 @@ def test_xenserver_guest_xenservervm_set_power_state(mocker,
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     state = fake_ansible_module.params['state']
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     powerstate_changed = vm.set_power_state(state)
@@ -127,11 +120,10 @@ def test_xenserver_guest_xenservervm_set_power_state_check_mode(mocker,
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     state = fake_ansible_module.params['state']
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     powerstate_changed = vm.set_power_state(state)
@@ -160,9 +152,7 @@ def test_xenserver_guest_xenservervm_wait_for_ip_address(mocker,
                                                  wraps=xenserver_guest.wait_for_vm_ip_address)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     vm.wait_for_ip_address()
@@ -178,8 +168,6 @@ def test_xenserver_guest_xenservervm_wait_for_ip_address(mocker,
 def test_xenserver_guest_xenservervm_deploy_failures(mocker, fake_ansible_module, fail_msg, xenserver_guest):
     """Tests XenServerVM.deploy() failures."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
-
-    xenserver_guest_expand_params(fake_ansible_module.params)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     vm.default_sr_ref = "OpaqueRef:NULL"
@@ -198,7 +186,6 @@ def test_xenserver_guest_xenservervm_deploy_failures_check_mode(mocker, fake_ans
     """Tests XenServerVM.deploy() failures in check mode."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -221,13 +208,11 @@ def test_xenserver_guest_xenservervm_deploy(mocker, fake_ansible_module, fake_vm
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     vm.deploy()
 
-    if fake_ansible_module.params['linked_clone']:
+    if fake_ansible_module.params.get('linked_clone', False):
         vm.xapi_session.xenapi_request.assert_xenapi_method_called_once('VM.clone')
         vm.xapi_session.xenapi_request.assert_xenapi_method_not_called('VM.copy')
     else:
@@ -239,7 +224,7 @@ def test_xenserver_guest_xenservervm_deploy(mocker, fake_ansible_module, fake_vm
     vm.xapi_session.xenapi_request.assert_xenapi_method_called_once('VM.provision')
     mocked_reconfigure.assert_called_once_with()
 
-    if fake_ansible_module.params['state'] == "poweredon":
+    if fake_ansible_module.params.get('state', 'present') == "poweredon":
         mocked_set_vm_power_state.assert_called_once_with(fake_ansible_module, vm.vm_ref, 'poweredon', 0)
     else:
         mocked_set_vm_power_state.assert_not_called()
@@ -263,7 +248,6 @@ def test_xenserver_guest_xenservervm_deploy_check_mode(mocker, fake_ansible_modu
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -290,8 +274,6 @@ def test_xenserver_guest_xenservervm_destroy_failures(mocker, fake_ansible_modul
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     with pytest.raises(FailJsonException) as exc_info:
@@ -311,7 +293,6 @@ def test_xenserver_guest_xenservervm_destroy_failures_check_mode(mocker, fake_an
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -333,9 +314,7 @@ def test_xenserver_guest_xenservervm_destroy(mocker, fake_ansible_module, fake_v
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
@@ -357,7 +336,6 @@ def test_xenserver_guest_xenservervm_destroy_check_mode(mocker, fake_ansible_mod
                                              wraps=xenserver_guest.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -377,8 +355,6 @@ def test_xenserver_guest_xenservervm_destroy_check_mode(mocker, fake_ansible_mod
                          indirect=['fake_ansible_module'])
 def test_xenserver_guest_xenservervm_get_changes_failures(fake_ansible_module, fail_msg, xenserver_guest):
     """Tests XenServerVM.get_changes() failures."""
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     vm.default_sr_ref = "OpaqueRef:NULL"
 
@@ -397,8 +373,6 @@ def test_xenserver_guest_xenservervm_get_changes_device_limits(mocker, fake_ansi
     mocker.patch('XenAPI._MAX_VBD_DEVICES', max_vbd)
     mocker.patch('XenAPI._MAX_VIF_DEVICES', max_vif)
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     with pytest.raises(FailJsonException) as exc_info:
@@ -413,8 +387,6 @@ def test_xenserver_guest_xenservervm_get_changes_device_limits(mocker, fake_ansi
                          indirect=True)
 def test_xenserver_guest_xenservervm_get_changes_no_changes(fake_ansible_module, xenserver_guest):
     """Tests XenServerVM.get_changes() regular run without changes."""
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     assert vm.get_changes() == []
@@ -426,8 +398,6 @@ def test_xenserver_guest_xenservervm_get_changes_no_changes(fake_ansible_module,
                          indirect=['fake_ansible_module'])
 def test_xenserver_guest_xenservervm_get_changes_need_poweredoff(fake_ansible_module, need_poweredoff, xenserver_guest):
     """Tests if XenServerVM.get_changes() generates need_poweredoff flag when conditions are met."""
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     changes = vm.get_changes()
@@ -444,8 +414,6 @@ def test_xenserver_guest_xenservervm_get_changes_need_poweredoff(fake_ansible_mo
                          indirect=True)
 def test_xenserver_guest_xenservervm_get_changes(fake_ansible_module, fake_vm_changes, xenserver_guest):
     """Tests XenServerVM.get_changes() regular run with changes."""
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     changes = vm.get_changes()
@@ -480,8 +448,6 @@ def test_xenserver_guest_xenservervm_reconfigure_failures(mocker, fake_ansible_m
     """Tests XenServerVM.reconfigure() failures."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     vm.default_sr_ref = "OpaqueRef:NULL"
 
@@ -499,7 +465,6 @@ def test_xenserver_guest_xenservervm_reconfigure_failures_check_mode(mocker, fak
     """Tests XenServerVM.reconfigure() failures in check mode."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -519,8 +484,6 @@ def test_xenserver_guest_xenservervm_reconfigure(mocker, fake_ansible_module, fa
     """Tests XenServerVM.reconfigure() regular run with changes."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     vm.reconfigure()
@@ -537,8 +500,6 @@ def test_xenserver_guest_xenservervm_reconfigure_elifs(mocker, fake_ansible_modu
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
     mocker.patch.object(xenserver_guest.XenServerVM, 'get_changes', return_value=fake_vm_changes)
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
     vm.vm_params['customization_agent'] = "impossible"
 
@@ -553,7 +514,6 @@ def test_xenserver_guest_xenservervm_reconfigure_check_mode(mocker, fake_ansible
     """Tests XenServerVM.reconfigure() regular run with changes in check mode."""
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
@@ -577,8 +537,6 @@ def test_xenserver_guest_xenservervm_get_normalized_disk_size_failures(fake_ansi
         "name": "some-vm-name",
     })
 
-    xenserver_guest_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 
     with pytest.raises(FailJsonException) as exc_info:
@@ -600,8 +558,6 @@ def test_xenserver_guest_xenservervm_get_normalized_disk_size(fake_ansible_modul
     fake_ansible_module.params.update({
         "name": "some-vm-name",
     })
-
-    xenserver_guest_expand_params(fake_ansible_module.params)
 
     vm = xenserver_guest.XenServerVM(fake_ansible_module)
 

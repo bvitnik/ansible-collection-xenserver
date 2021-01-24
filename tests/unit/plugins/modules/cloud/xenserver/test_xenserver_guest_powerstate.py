@@ -11,7 +11,6 @@ import json
 import pytest
 
 from .FakeAnsibleModule import FailJsonException
-from .common import xenserver_guest_powerstate_expand_params
 from .testcases.xenserver_guest_common import (testcase_vm_not_found,
                                                testcase_vm_found)
 from .testcases.xenserver_guest_powerstate_common import (testcase_powerstate_change,
@@ -30,8 +29,6 @@ pytestmark = pytest.mark.usefixtures("fake_xenapi_db_vm")
                          indirect=True)
 def test_xenserver_guest_powerstate_xenservervm_misc_failures(fake_ansible_module, xenserver_guest_powerstate):
     """Tests failures of XenServerVM.__init__()."""
-    xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
-
     if fake_ansible_module.params.get('uuid') or fake_ansible_module.params.get('name'):
         with pytest.raises(FailJsonException) as exc_info:
             vm = xenserver_guest_powerstate.XenServerVM(fake_ansible_module)
@@ -51,8 +48,6 @@ def test_xenserver_guest_powerstate_xenservervm_misc_failures(fake_ansible_modul
                          indirect=True)
 def test_xenserver_guest_powerstate_xenservervm_misc_success(fake_ansible_module, fake_vm_facts, xenserver_guest_powerstate):
     """Tests successful run of XenServerVM.__init__() and misc methods."""
-    xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
-
     vm = xenserver_guest_powerstate.XenServerVM(fake_ansible_module)
 
     assert vm.gather_facts() == fake_vm_facts
@@ -72,10 +67,8 @@ def test_xenserver_guest_powerstate_xenservervm_set_power_state(mocker,
                                              wraps=xenserver_guest_powerstate.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
-
     state = fake_ansible_module.params['state']
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest_powerstate.XenServerVM(fake_ansible_module)
     powerstate_changed = vm.set_power_state(state)
@@ -99,11 +92,10 @@ def test_xenserver_guest_powerstate_xenservervm_set_power_state_check_mode(mocke
                                              wraps=xenserver_guest_powerstate.set_vm_power_state)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
     fake_ansible_module.check_mode = True
 
     state = fake_ansible_module.params['state']
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest_powerstate.XenServerVM(fake_ansible_module)
     powerstate_changed = vm.set_power_state(state)
@@ -132,9 +124,7 @@ def test_xenserver_guest_powerstate_xenservervm_wait_for_ip_address(mocker,
                                                  wraps=xenserver_guest_powerstate.wait_for_vm_ip_address)
     mocker.patch('ansible_collections.bvitnik.xenserver.plugins.module_utils.xenserver.time.sleep')
 
-    xenserver_guest_powerstate_expand_params(fake_ansible_module.params)
-
-    state_change_timeout = fake_ansible_module.params['state_change_timeout']
+    state_change_timeout = fake_ansible_module.params.get('state_change_timeout', 0)
 
     vm = xenserver_guest_powerstate.XenServerVM(fake_ansible_module)
     vm.wait_for_ip_address()

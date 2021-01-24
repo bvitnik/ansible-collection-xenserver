@@ -593,7 +593,7 @@ class XenServerVM(XenServerObject):
 
     def set_power_state(self, power_state):
         """Controls VM power state."""
-        state_changed, current_state = set_vm_power_state(self.module, self.vm_ref, power_state, self.module.params['state_change_timeout'])
+        state_changed, current_state = set_vm_power_state(self.module, self.vm_ref, power_state, self.module.params.get('state_change_timeout', 0))
 
         # If state has changed, update vm_params.
         if state_changed:
@@ -603,7 +603,7 @@ class XenServerVM(XenServerObject):
 
     def wait_for_ip_address(self):
         """Waits for VM to acquire an IP address."""
-        self.vm_params['guest_metrics'] = wait_for_vm_ip_address(self.module, self.vm_ref, self.module.params['state_change_timeout'])
+        self.vm_params['guest_metrics'] = wait_for_vm_ip_address(self.module, self.vm_ref, self.module.params.get('state_change_timeout', 0))
 
     def deploy(self):
         """Deploys new VM from template."""
@@ -612,7 +612,7 @@ class XenServerVM(XenServerObject):
             self.module.fail_json(msg="Called deploy on existing VM!")
 
         try:
-            templ_ref = get_object_ref(self.module, self.module.params['template'], self.module.params['template_uuid'], obj_type="template", fail=True,
+            templ_ref = get_object_ref(self.module, self.module.params.get('template'), self.module.params.get('template_uuid'), obj_type="template", fail=True,
                                        msg_prefix="VM deploy: ")
 
             # Is this an existing running VM?
@@ -621,7 +621,7 @@ class XenServerVM(XenServerObject):
 
             # Find a SR we can use for VM.copy(). We use SR of the first disk
             # if specified or default SR if not specified.
-            disk_params_list = self.module.params['disks']
+            disk_params_list = self.module.params.get('disks')
 
             sr_ref = None
 
@@ -647,10 +647,10 @@ class XenServerVM(XenServerObject):
 
             # Now we can instantiate VM. We use VM.clone for linked_clone and
             # VM.copy for non linked_clone.
-            if self.module.params['linked_clone']:
-                self.vm_ref = self.xapi_session.xenapi.VM.clone(templ_ref, self.module.params['name'])
+            if self.module.params.get('linked_clone', False):
+                self.vm_ref = self.xapi_session.xenapi.VM.clone(templ_ref, self.module.params.get('name'))
             else:
-                self.vm_ref = self.xapi_session.xenapi.VM.copy(templ_ref, self.module.params['name'], sr_ref)
+                self.vm_ref = self.xapi_session.xenapi.VM.copy(templ_ref, self.module.params.get('name'), sr_ref)
 
             # Description is copied over from template so we reset it.
             self.xapi_session.xenapi.VM.set_name_description(self.vm_ref, "")
@@ -686,7 +686,7 @@ class XenServerVM(XenServerObject):
             self.reconfigure()
 
             # Power on VM if needed.
-            if self.module.params['state'] == "poweredon":
+            if self.module.params.get('state', 'present') == "poweredon":
                 self.set_power_state("poweredon")
 
         except XenAPI.Failure as f:
@@ -706,14 +706,14 @@ class XenServerVM(XenServerObject):
 
         vm_power_state_save = self.vm_params['power_state'].lower()
 
-        if "need_poweredoff" in config_changes and vm_power_state_save != 'halted' and not self.module.params['force']:
+        if "need_poweredoff" in config_changes and vm_power_state_save != 'halted' and not self.module.params.get('force', False):
             self.module.fail_json(msg="VM reconfigure: VM has to be in powered off state to reconfigure but force was not specified!")
 
         # Support for Ansible check mode.
         if self.module.check_mode:
             return config_changes
 
-        if "need_poweredoff" in config_changes and vm_power_state_save != 'halted' and self.module.params['force']:
+        if "need_poweredoff" in config_changes and vm_power_state_save != 'halted' and self.module.params.get('force', False):
             self.set_power_state("shutdownguest")
 
         try:
@@ -726,10 +726,10 @@ class XenServerVM(XenServerObject):
                     elif change == "folder":
                         self.xapi_session.xenapi.VM.remove_from_other_config(self.vm_ref, 'folder')
 
-                        if self.module.params['folder']:
+                        if self.module.params.get('folder'):
                             self.xapi_session.xenapi.VM.add_to_other_config(self.vm_ref, 'folder', self.module.params['folder'])
                     elif change == "home_server":
-                        if self.module.params['home_server']:
+                        if self.module.params.get('home_server'):
                             host_ref = self.xapi_session.xenapi.host.get_by_name_label(self.module.params['home_server'])[0]
                         else:
                             host_ref = "OpaqueRef:NULL"
@@ -1124,9 +1124,9 @@ class XenServerVM(XenServerObject):
                             custom_param_value = self.module.params['custom_params'][position]['value']
                             self.xapi_session.xenapi_request("VM.set_%s" % custom_param_key.replace('-', '_'), (self.vm_ref, custom_param_value))
 
-            if self.module.params['is_template']:
+            if self.module.params.get('is_template', False):
                 self.xapi_session.xenapi.VM.set_is_a_template(self.vm_ref, True)
-            elif "need_poweredoff" in config_changes and self.module.params['force'] and vm_power_state_save != 'halted':
+            elif "need_poweredoff" in config_changes and self.module.params.get('force', False) and vm_power_state_save != 'halted':
                 self.set_power_state("poweredon")
 
             # Gather new params after reconfiguration.
@@ -1143,7 +1143,7 @@ class XenServerVM(XenServerObject):
         if not self.exists():
             self.module.fail_json(msg="Called destroy on non existing VM!")
 
-        if self.vm_params['power_state'].lower() != 'halted' and not self.module.params['force']:
+        if self.vm_params['power_state'].lower() != 'halted' and not self.module.params.get('force', False):
             self.module.fail_json(msg="VM destroy: VM has to be in powered off state to destroy but force was not specified!")
 
         # Support for Ansible check mode.
@@ -1184,7 +1184,7 @@ class XenServerVM(XenServerObject):
 
         need_poweredoff = False
 
-        if self.module.params['is_template']:
+        if self.module.params.get('is_template', False):
             need_poweredoff = True
 
         try:
@@ -1201,23 +1201,23 @@ class XenServerVM(XenServerObject):
             config_changes = []
 
             # Name could only differ if we found an existing VM by uuid.
-            if self.module.params['name'] is not None and self.module.params['name'] != self.vm_params['name_label']:
+            if self.module.params.get('name') is not None and self.module.params['name'] != self.vm_params['name_label']:
                 if self.module.params['name']:
                     config_changes.append('name')
                 else:
                     self.module.fail_json(msg="VM check name: VM name cannot be an empty string!")
 
-            if self.module.params['name_desc'] is not None and self.module.params['name_desc'] != self.vm_params['name_description']:
+            if self.module.params.get('name_desc') is not None and self.module.params['name_desc'] != self.vm_params['name_description']:
                 config_changes.append('name_desc')
 
             # Folder parameter is found in other_config.
             vm_other_config = self.vm_params['other_config']
             vm_folder = vm_other_config.get('folder', '')
 
-            if self.module.params['folder'] is not None and self.module.params['folder'] != vm_folder:
+            if self.module.params.get('folder') is not None and self.module.params['folder'] != vm_folder:
                 config_changes.append('folder')
 
-            if self.module.params['home_server'] is not None:
+            if self.module.params.get('home_server') is not None:
                 if (self.module.params['home_server'] and
                         (not self.vm_params['affinity'] or self.module.params['home_server'] != self.vm_params['affinity']['name_label'])):
 
@@ -1231,7 +1231,7 @@ class XenServerVM(XenServerObject):
 
             config_changes_hardware = []
 
-            if self.module.params['hardware']:
+            if self.module.params.get('hardware'):
                 num_cpus = self.module.params['hardware'].get('num_cpus')
 
                 if num_cpus is not None:
@@ -1323,7 +1323,7 @@ class XenServerVM(XenServerObject):
             # Find allowed userdevices.
             vbd_userdevices_allowed = self.xapi_session.xenapi.VM.get_allowed_VBD_devices(self.vm_ref)
 
-            if self.module.params['disks']:
+            if self.module.params.get('disks'):
                 # Get the list of all disk. Filter out any CDs found.
                 vm_disk_params_list = [disk_params for disk_params in self.vm_params['VBDs'] if disk_params['type'] == "Disk"]
 
@@ -1431,7 +1431,7 @@ class XenServerVM(XenServerObject):
 
             config_changes_cdrom = []
 
-            if self.module.params['cdrom']:
+            if self.module.params.get('cdrom'):
                 # Get the list of all CD-ROMs. Filter out any regular disks
                 # found. If we found no existing CD-ROM, we will create it
                 # later else take the first one found.
@@ -1482,7 +1482,7 @@ class XenServerVM(XenServerObject):
             # Find allowed devices.
             vif_devices_allowed = self.xapi_session.xenapi.VM.get_allowed_VIF_devices(self.vm_ref)
 
-            if self.module.params['networks']:
+            if self.module.params.get('networks'):
                 # Number of VIFs defined in module params have to be same or
                 # higher than a number of existing VIFs attached to the VM.
                 # We don't support removal of VIFs.
@@ -1763,12 +1763,12 @@ class XenServerVM(XenServerObject):
 
             config_changes_custom_params = []
 
-            if self.module.params['custom_params']:
+            if self.module.params.get('custom_params'):
                 for position in range(len(self.module.params['custom_params'])):
                     custom_param = self.module.params['custom_params'][position]
 
-                    custom_param_key = custom_param['key']
-                    custom_param_value = custom_param['value']
+                    custom_param_key = custom_param.get('key')
+                    custom_param_value = custom_param.get('value')
 
                     if custom_param_key.replace('-', '_') not in self.vm_params:
                         self.module.fail_json(msg="VM check custom_params[%s]: unknown VM param '%s'!" % (position, custom_param_key))

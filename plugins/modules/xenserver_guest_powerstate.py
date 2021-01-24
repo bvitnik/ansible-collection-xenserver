@@ -211,7 +211,12 @@ class XenServerVM(XenServerObject):
         """
         super(XenServerVM, self).__init__(module)
 
-        self.vm_ref = get_object_ref(self.module, self.module.params['name'], self.module.params['uuid'], obj_type="VM", fail=True, msg_prefix="VM search: ")
+        self.vm_ref = get_object_ref(self.module,
+                                     self.module.params.get('name'),
+                                     self.module.params.get('uuid'),
+                                     obj_type="VM",
+                                     fail=True,
+                                     msg_prefix="VM search: ")
         self.gather_params()
 
     def gather_params(self):
@@ -224,7 +229,7 @@ class XenServerVM(XenServerObject):
 
     def set_power_state(self, power_state):
         """Controls VM power state."""
-        state_changed, current_state = set_vm_power_state(self.module, self.vm_ref, power_state, self.module.params['state_change_timeout'])
+        state_changed, current_state = set_vm_power_state(self.module, self.vm_ref, power_state, self.module.params.get('state_change_timeout', 0))
 
         # If state has changed, update vm_params.
         if state_changed:
@@ -234,7 +239,7 @@ class XenServerVM(XenServerObject):
 
     def wait_for_ip_address(self):
         """Waits for VM to acquire an IP address."""
-        self.vm_params['guest_metrics'] = wait_for_vm_ip_address(self.module, self.vm_ref, self.module.params['state_change_timeout'])
+        self.vm_params['guest_metrics'] = wait_for_vm_ip_address(self.module, self.vm_ref, self.module.params.get('state_change_timeout', 0))
 
 
 def main():
